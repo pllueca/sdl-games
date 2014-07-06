@@ -8,22 +8,16 @@
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
-int STEP = 5;
+int STEP = 9;
 
 const int PADDLE_WIDTH = 30;
 const int PADDLE_HEIGHT = 180;
-
-Uint32 rmask = 0x000000ff;
-Uint32 gmask = 0x0000ff00;
-Uint32 bmask = 0x00ff0000;
-Uint32 amask = 0xff000000;
+const int BALL_WIDTH = 15;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
 
-int desp_l = 210;
-int desp_r = 210;
 
 // game loop
 bool playing = true;
@@ -31,9 +25,9 @@ bool playing = true;
 struct ball {
     int x;
     int y;
-    int velx;
-    int vely;
-    int rad;
+    int vx;
+    int vy;
+    int dim;
 };
 
 struct paddle {
@@ -44,23 +38,31 @@ struct paddle {
 paddle left_paddle, right_paddle;
 ball ball1;
 
-/* dibuja src encima de dest */
-void apply_surface(int x, int y, SDL_Surface* src, SDL_Surface* dest) {
-    SDL_Rect offset;
-    offset.x = x;
-    offset.y = y;
-    SDL_BlitSurface(src,NULL,dest,&offset);
+
+// Check colisions 
+// not implemented
+bool checkCollisionLeft(){
+    return false;
+}
+
+bool checkCollisionRight(){
+    return false;
+}
+
+bool checkCollisionUpDown(){
+    if(ball1.y + ball1.vy <= 0 || ball1.y + ball1.vy + BALL_WIDTH >= WINDOW_HEIGHT)
+        return true;
+    return false;
 }
 
 
 //******************************************************
 void init(){
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
-        printf("No se ha podido inicializar SDL2!\nError: %s\n", SDL_GetError());
-        exit(1);
-    }
+    SDL_Init(SDL_INIT_EVERYTHING);
+
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // key repetition
-    window = SDL_CreateWindow( // x, y, w, h, flags
+
+    window = SDL_CreateWindow( // name, x, y, w, h, flags
         "Pong",
         SDL_WINDOWPOS_CENTERED, // window centrada en la pantalla
         SDL_WINDOWPOS_CENTERED,
@@ -76,45 +78,77 @@ void init(){
     left_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT/2);
     right_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT / 2);
     right_paddle.x = WINDOW_WIDTH - 2*PADDLE_WIDTH;
+    ball1.x = WINDOW_WIDTH/2;
+    ball1.y = WINDOW_HEIGHT/2;
+    ball1.dim = BALL_WIDTH;
 
     SDL_ShowCursor(0);
     
 }
 
+int mov1, mov2;
+
 void handle_input(){
+    bool keydown = false;
     while(SDL_PollEvent(&event) != 0){
         switch(event.type){
             case SDL_QUIT:
                 playing = false;
                 break;
             case SDL_KEYDOWN:
+                keydown = true;
                 if(event.key.keysym.sym == SDLK_UP){
-                    right_paddle.y -= STEP;
-                    if(right_paddle.y < 0)
-                        right_paddle.y = 0;
+                    mov1 = -1;
                 }
                 else if(event.key.keysym.sym == SDLK_DOWN){
-                    right_paddle.y += STEP;                 
-                    if(right_paddle.y + PADDLE_HEIGHT > WINDOW_HEIGHT)
-                        right_paddle.y = WINDOW_HEIGHT - PADDLE_HEIGHT;
+                    mov1 = 1;
                 }
-                    
+                else
+                    mov1 = 0;
+                  
                 if(event.key.keysym.sym == SDLK_w){
-                    left_paddle.y -= STEP;
-                    if(left_paddle.y < 0)
-                        left_paddle.y = 0;
+                    mov2 = -1;
                 }
-                else if(event.key.keysym.sym == SDLK_s){
+                else if(event.key.keysym.sym == SDLK_s)
+                    mov2 = 1;
+                else
+                    mov2 = 0;
                    
-                }
-                    
                 break;
         }
     }
+    if(!keydown)
+        mov1 = mov2 = 0;
 }
 
 void update(){
-    
+    // update las palas
+    right_paddle.y += STEP * mov1;
+    if(right_paddle.y < 0)
+        right_paddle.y = 0;
+    else if(right_paddle.y + PADDLE_HEIGHT > WINDOW_HEIGHT)
+        right_paddle.y = WINDOW_HEIGHT - PADDLE_HEIGHT;
+
+    left_paddle.y += STEP*mov2;
+    if(left_paddle.y < 0)
+        left_paddle.y = 0;
+    else if(left_paddle.y + PADDLE_HEIGHT > WINDOW_HEIGHT)
+        left_paddle.y = WINDOW_HEIGHT - PADDLE_HEIGHT;
+
+    // update la bola
+    if(checkCollisionLeft()){
+        
+    }
+    else if(checkCollisionRight()){
+        
+    }
+    else if (checkCollisionUpDown()){
+    }
+    else{
+        ball1.x += ball1.vx;
+        ball1.y += ball1.vy;
+    }
+
 }
 
 
@@ -134,7 +168,10 @@ void draw(){
     SDL_RenderFillRect(renderer, &pala2);
 
     // pinta la bola
-    // ...
+    SDL_SetRenderDrawColor(renderer, 0,0,255,255);
+    SDL_Rect bola = {ball1.x, ball1.y,
+                     ball1.dim, ball1.dim};
+    SDL_RenderFillRect(renderer, &bola);
     
 
     SDL_RenderPresent(renderer);
