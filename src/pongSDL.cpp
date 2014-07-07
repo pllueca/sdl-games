@@ -18,6 +18,8 @@ const int BALL_WIDTH = 15;
 int points_j1;
 int points_j2;
 
+int mov1, mov2;
+
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
@@ -72,7 +74,7 @@ bool checkCollisionPalaLeft(){
 
 bool checkCollisionPalaRight(){
     if(ball1.y + ball1.vy >= right_paddle.y && ball1.y + ball1.vy <= right_paddle.y + PADDLE_HEIGHT &&
-       ball1.x < right_paddle.x && ball1.x + ball1.vx >= right_paddle.x)
+       ball1.x + BALL_WIDTH< right_paddle.x && ball1.x + ball1.vx + BALL_WIDTH  >= right_paddle.x)
         return true;
     return false;
     
@@ -82,6 +84,20 @@ bool checkCollisionUpDown(){
     if(ball1.y + ball1.vy <= 0 || ball1.y + ball1.vy + BALL_WIDTH >= WINDOW_HEIGHT)
         return true;
     return false;
+}
+
+void restart_positions(){
+    left_paddle.x = PADDLE_WIDTH;
+    left_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT/2);
+    right_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT / 2);
+    right_paddle.x = WINDOW_WIDTH - 2*PADDLE_WIDTH;
+    ball1.x = WINDOW_WIDTH/2;
+    ball1.y = WINDOW_HEIGHT/2;
+    ball1.dim = BALL_WIDTH;
+    ball1.vy = 10 + rand() % 20;
+    ball1.vx = -10 + rand() % 20;
+    mov1 = 0;
+    mov2 = 0;
 }
 
 
@@ -103,23 +119,12 @@ void init(){
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); 
 
     // posicion inicial de las palas
-    left_paddle.x = PADDLE_WIDTH;
-    left_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT/2);
-    right_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT / 2);
-    right_paddle.x = WINDOW_WIDTH - 2*PADDLE_WIDTH;
-    ball1.x = WINDOW_WIDTH/2;
-    ball1.y = WINDOW_HEIGHT/2;
-    ball1.dim = BALL_WIDTH;
-    ball1.vy = 10 + rand() % 20;
-    ball1.vx = -10 + rand() % 20;
-
+    restart_positions();
     points_j1 = 0;
     points_j2 = 0;
     SDL_ShowCursor(0);
     
 }
-
-int mov1, mov2;
 
 void handle_input(){
     bool keydown = false;
@@ -146,7 +151,12 @@ void handle_input(){
                     mov2 = 1;
                 else
                     mov2 = 0;
-                   
+
+                if(event.key.keysym.sym == SDLK_SPACE)
+                    restart_positions();
+
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                    playing = false;
                 break;
         }
     }
