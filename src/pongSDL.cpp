@@ -14,12 +14,16 @@ const int PADDLE_WIDTH = 30;
 const int PADDLE_HEIGHT = 180;
 const int BALL_WIDTH = 15;
 
+
+int points_j1;
+int points_j2;
+
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
 
 
-// game loop
+
 bool playing = true;
 
 struct ball {
@@ -28,6 +32,10 @@ struct ball {
     int vx;
     int vy;
     int dim;
+    
+    double angle(){
+        return atan(sqrt(pow(vx,2) + pow(vy,2)));
+    }
 };
 
 struct paddle {
@@ -42,10 +50,14 @@ ball ball1;
 // Check colisions 
 // not implemented
 bool checkCollisionLeft(){
+    if(ball1.x + ball1.vx <= 0)
+        return true;
     return false;
 }
 
 bool checkCollisionRight(){
+    if(ball1.x + ball1.vx + BALL_WIDTH >= WINDOW_WIDTH)
+        return true;
     return false;
 }
 
@@ -81,7 +93,11 @@ void init(){
     ball1.x = WINDOW_WIDTH/2;
     ball1.y = WINDOW_HEIGHT/2;
     ball1.dim = BALL_WIDTH;
+    ball1.vy = -10 + rand() % 20;
+    ball1.vx = -10 + rand() % 20;
 
+    points_j1 = 0;
+    points_j2 = 0;
     SDL_ShowCursor(0);
     
 }
@@ -137,12 +153,18 @@ void update(){
 
     // update la bola
     if(checkCollisionLeft()){
-        
+        ++points_j2;
+        ball1.vx = -ball1.vx;
+        ball1.vy = ball1.vy;
     }
     else if(checkCollisionRight()){
-        
+        ++points_j1;
+        ball1.vx = -ball1.vx;
+        ball1.vy = ball1.vy;              
     }
     else if (checkCollisionUpDown()){
+        ball1.vx = ball1.vx;
+        ball1.vy = -ball1.vy;
     }
     else{
         ball1.x += ball1.vx;
