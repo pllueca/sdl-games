@@ -61,6 +61,23 @@ bool checkCollisionRight(){
     return false;
 }
 
+
+bool checkCollisionPalaLeft(){
+    if(ball1.y + ball1.vy >= left_paddle.y && ball1.y + ball1.vy <= left_paddle.y + PADDLE_HEIGHT &&
+       ball1.x > left_paddle.x + PADDLE_WIDTH && ball1.x + ball1.vx <= left_paddle.x + PADDLE_WIDTH)
+        return true;
+    return false;
+    
+}
+
+bool checkCollisionPalaRight(){
+    if(ball1.y + ball1.vy >= right_paddle.y && ball1.y + ball1.vy <= right_paddle.y + PADDLE_HEIGHT &&
+       ball1.x < right_paddle.x && ball1.x + ball1.vx >= right_paddle.x)
+        return true;
+    return false;
+    
+}
+
 bool checkCollisionUpDown(){
     if(ball1.y + ball1.vy <= 0 || ball1.y + ball1.vy + BALL_WIDTH >= WINDOW_HEIGHT)
         return true;
@@ -93,7 +110,7 @@ void init(){
     ball1.x = WINDOW_WIDTH/2;
     ball1.y = WINDOW_HEIGHT/2;
     ball1.dim = BALL_WIDTH;
-    ball1.vy = -10 + rand() % 20;
+    ball1.vy = 10 + rand() % 20;
     ball1.vx = -10 + rand() % 20;
 
     points_j1 = 0;
@@ -166,6 +183,15 @@ void update(){
         ball1.vx = ball1.vx;
         ball1.vy = -ball1.vy;
     }
+    else if (checkCollisionPalaLeft()){
+        ball1.vx = -ball1.vx;
+        ball1.vy = ball1.vy;
+    }
+    else if (checkCollisionPalaRight()){
+        ball1.vx = -ball1.vx;
+        ball1.vy = ball1.vy;
+    }
+        
     else{
         ball1.x += ball1.vx;
         ball1.y += ball1.vy;
