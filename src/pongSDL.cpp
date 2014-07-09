@@ -2,13 +2,15 @@
 
 #include <SDL2/SDL.h>
 #include <cmath>                      
-#include <ctime>                      
+#include <ctime>   
+#include <iostream>
+using namespace std;
 
 // Window attributes
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
-int STEP = 9;
+int STEP = 15;
 
 const int PADDLE_WIDTH = 30;
 const int PADDLE_HEIGHT = 180;
@@ -20,6 +22,8 @@ int points_j2;
 
 int mov1, mov2;
 
+bool bola_mov;
+
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
@@ -27,6 +31,7 @@ SDL_Event event;
 
 
 bool playing = true;
+bool last_player;
 
 struct ball {
     int x;
@@ -87,6 +92,9 @@ bool checkCollisionUpDown(){
 }
 
 void restart_positions(){
+    cout <<"Points Player1:\t"<<points_j1<<endl;
+    cout <<"Points Player2:\t"<<points_j2<<endl;
+    cout <<endl;
     left_paddle.x = PADDLE_WIDTH;
     left_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT/2);
     right_paddle.y = WINDOW_HEIGHT/2 - (PADDLE_HEIGHT / 2);
@@ -95,9 +103,13 @@ void restart_positions(){
     ball1.y = WINDOW_HEIGHT/2;
     ball1.dim = BALL_WIDTH;
     ball1.vy = 10 + rand() % 20;
-    ball1.vx = -10 + rand() % 20;
+    if(last_player)
+        ball1.vx = -10 + rand() % 10;
+    else
+        ball1.vx = rand() % 10;
     mov1 = 0;
     mov2 = 0;
+    bola_mov = false;
 }
 
 
@@ -118,10 +130,15 @@ void init(){
     // inicializa el renderer que pintara las cosas
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); 
 
-    // posicion inicial de las palas
-    restart_positions();
     points_j1 = 0;
     points_j2 = 0;
+
+    last_player = rand() % 2;
+
+    // posicion inicial de las palas
+    restart_positions();
+
+
     SDL_ShowCursor(0);
     
 }
@@ -153,7 +170,8 @@ void handle_input(){
                     mov2 = 0;
 
                 if(event.key.keysym.sym == SDLK_SPACE)
-                    restart_positions();
+                    if(!bola_mov)
+                        bola_mov = true;
 
                 if(event.key.keysym.sym == SDLK_ESCAPE)
                     playing = false;
@@ -179,34 +197,35 @@ void update(){
         left_paddle.y = WINDOW_HEIGHT - PADDLE_HEIGHT;
 
     // update la bola
-    if(checkCollisionLeft()){
-        ++points_j2;
-        ball1.vx = -ball1.vx;
-        ball1.vy = ball1.vy;
-    }
-    else if(checkCollisionRight()){
-        ++points_j1;
-        ball1.vx = -ball1.vx;
-        ball1.vy = ball1.vy;              
-    }
-    else if (checkCollisionUpDown()){
-        ball1.vx = ball1.vx;
-        ball1.vy = -ball1.vy;
-    }
-    else if (checkCollisionPalaLeft()){
-        ball1.vx = -ball1.vx;
-        ball1.vy = ball1.vy;
-    }
-    else if (checkCollisionPalaRight()){
-        ball1.vx = -ball1.vx;
-        ball1.vy = ball1.vy;
-    }
+    if(bola_mov){
+        if(checkCollisionLeft()){
+            ++points_j2;
+            last_player = true;
+            restart_positions();
+        }
+        else if(checkCollisionRight()){
+            ++points_j1;
+            last_player = false;
+            restart_positions();
+        }
+        else if (checkCollisionUpDown()){
+            ball1.vx = ball1.vx;
+            ball1.vy = -ball1.vy;
+        }
+        else if (checkCollisionPalaLeft()){
+            ball1.vx = -ball1.vx;
+            ball1.vy = ball1.vy;
+        }
+        else if (checkCollisionPalaRight()){
+            ball1.vx = -ball1.vx;
+            ball1.vy = ball1.vy;
+        }
         
-    else{
-        ball1.x += ball1.vx;
-        ball1.y += ball1.vy;
+        else{
+            ball1.x += ball1.vx;
+            ball1.y += ball1.vy;
+        }
     }
-
 }
 
 
