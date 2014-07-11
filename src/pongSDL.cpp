@@ -1,6 +1,6 @@
 /* Classic game Pong implemented using SDL 2.0.3 */
 
-#include <SDL2/SDL.h>
+#include "utilPong.h"
 #include <cmath>                      
 #include <ctime>   
 #include <iostream>
@@ -16,9 +16,7 @@ const int PADDLE_WIDTH = 30;
 const int PADDLE_HEIGHT = 180;
 const int BALL_WIDTH = 15;
 
-
-int points_j1;
-int points_j2;
+const int SCORE_SIZE = 24;
 
 int mov1, mov2;
 
@@ -28,7 +26,9 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
 
-
+SDL_Texture *font_score1, *font_score2;
+int points_j1, points_j2;
+bool score1_changed, score2changed;
 
 bool playing = true;
 bool last_player;
@@ -52,6 +52,8 @@ struct paddle {
 
 paddle left_paddle, right_paddle;
 ball ball1;
+
+
 
 
 // Check colisions 
@@ -116,7 +118,7 @@ void restart_positions(){
 //******************************************************
 void init(){
     SDL_Init(SDL_INIT_EVERYTHING);
-
+    TTF_Init();
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // key repetition
 
     window = SDL_CreateWindow( // name, x, y, w, h, flags
@@ -250,6 +252,25 @@ void draw(){
                      ball1.dim, ball1.dim};
     SDL_RenderFillRect(renderer, &bola);
     
+
+    // pinta las puntuaciones
+    if(score1_changed){
+        // font_score1 es una surface que contiene la puntuacion, si cambia se ha de modificar, pero se pinta siempre
+        font_score1 = renderText(to_string(points_j1),
+                                 "Lato-Reg.TTF",
+                                 {190,190,190},
+                                 SCORE_SIZE,
+                                 renderer);
+        score1_changed = false;
+    }
+    renderTexture(font_score1,
+                  renderer,
+                  WINDOW_WIDTH * 4 / 10,
+                  WINOW_HEIGHT / 12);
+    if(score2_changed){
+        
+        score2_changed = false;
+    }
 
     SDL_RenderPresent(renderer);
 }

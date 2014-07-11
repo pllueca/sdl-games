@@ -1,8 +1,8 @@
 CC = g++
-CLIBS = lSDL2
+CLIBS = lSDL2 -lSDL2_ttf
 
 all: pong
-pong: pongSDL.cpp
+pong: pongSDL.cpp utilPong.h
 	$(CC) pongSDL.cpp -o pong -$(CLIBS)
 
 clean: pong
