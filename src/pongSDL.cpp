@@ -2,9 +2,7 @@
 
 #include "utilPong.h"
 #include <cmath>                      
-#include <ctime>   
-#include <iostream>
-using namespace std;
+#include <ctime>
 
 // Window attributes
 const int WINDOW_WIDTH = 800;
@@ -28,7 +26,7 @@ SDL_Event event;
 
 SDL_Texture *font_score1, *font_score2;
 int points_j1, points_j2;
-bool score1_changed, score2changed;
+bool score1_changed, score2_changed;
 
 bool playing = true;
 bool last_player;
@@ -52,6 +50,8 @@ struct paddle {
 
 paddle left_paddle, right_paddle;
 ball ball1;
+
+
 
 
 
@@ -134,6 +134,8 @@ void init(){
 
     points_j1 = 0;
     points_j2 = 0;
+    score1_changed = false;
+    score2_changed = false;
 
     last_player = rand() % 2;
 
@@ -202,11 +204,13 @@ void update(){
     if(bola_mov){
         if(checkCollisionLeft()){
             ++points_j2;
+            score2_changed = true;
             last_player = true;
             restart_positions();
         }
         else if(checkCollisionRight()){
             ++points_j1;
+            score1_changed = true;
             last_player = false;
             restart_positions();
         }
@@ -255,9 +259,8 @@ void draw(){
 
     // pinta las puntuaciones
     if(score1_changed){
-        // font_score1 es una surface que contiene la puntuacion, si cambia se ha de modificar, pero se pinta siempre
         font_score1 = renderText(to_string(points_j1),
-                                 "Lato-Reg.TTF",
+                                 "Arial.ttf",
                                  {190,190,190},
                                  SCORE_SIZE,
                                  renderer);
@@ -266,12 +269,19 @@ void draw(){
     renderTexture(font_score1,
                   renderer,
                   WINDOW_WIDTH * 4 / 10,
-                  WINOW_HEIGHT / 12);
+                  WINDOW_HEIGHT / 12);
     if(score2_changed){
-        
+        font_score2 = renderText(to_string(points_j2),
+                                 "Arial.ttf",
+                                 {190,190,190},
+                                 SCORE_SIZE,
+                                 renderer);
         score2_changed = false;
     }
-
+    renderTexture(font_score2,
+                  renderer,
+                  WINDOW_WIDTH * 6 / 10 - SCORE_SIZE/2,
+                  WINDOW_HEIGHT / 12);
     SDL_RenderPresent(renderer);
 }
 

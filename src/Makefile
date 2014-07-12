@@ -1,9 +1,10 @@
 CC = g++
-CLIBS = lSDL2 -lSDL2_ttf
+CLIBS = lSDL2 -lSDL_ttf
+CFLAGS = -std=c++11
 
 all: pong
 pong: pongSDL.cpp utilPong.h
-	$(CC) pongSDL.cpp -o pong -$(CLIBS)
+	$(CC) -$(CFLAGS) pongSDL.cpp -o pong -$(CLIBS) 
 
 clean: pong
 	rm pong

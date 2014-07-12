@@ -1,5 +1,8 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL/SDL_ttf.h>
+#include <string>
+#include <iostream>
+using namespace std;
 
 void renderTexture(SDL_Texture * tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr){
     SDL_RenderCopy(ren, tex, clip, &dst);
@@ -18,7 +21,7 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *
     renderTexture(tex,ren,dst,clip);
 }
 
-SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renferer *renderer){
+SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer){
     TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
 
     SDL_Surface *surf = TTF_RenderText_Blended(font, text.c_str(), color);
@@ -29,4 +32,3 @@ SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color co
     TTF_CloseFont(font);
     return texture;
 }
-
