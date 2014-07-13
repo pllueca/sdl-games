@@ -260,7 +260,7 @@ void draw(){
     // pinta las puntuaciones
     if(score1_changed){
         font_score1 = renderText(to_string(points_j1),
-                                 "Arial.ttf",
+                                 "sample.ttf",
                                  {190,190,190},
                                  SCORE_SIZE,
                                  renderer);
@@ -272,7 +272,7 @@ void draw(){
                   WINDOW_HEIGHT / 12);
     if(score2_changed){
         font_score2 = renderText(to_string(points_j2),
-                                 "Arial.ttf",
+                                 "sample.ttf",
                                  {190,190,190},
                                  SCORE_SIZE,
                                  renderer);
