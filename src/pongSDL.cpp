@@ -19,6 +19,7 @@ const int SCORE_SIZE = 24;
 int mov1, mov2;
 
 bool bola_mov;
+bool game_paused;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -113,13 +114,14 @@ void restart_positions(){
     mov1 = 0;
     mov2 = 0;
     bola_mov = false;
+    game_paused = false;
 }
 
 
 //******************************************************
 void init(){
     SDL_Init(SDL_INIT_EVERYTHING);
-    //TTF_Init();
+    TTF_Init();
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // key repetition
 
     window = SDL_CreateWindow( // name, x, y, w, h, flags
@@ -177,6 +179,8 @@ void handle_input(){
                 if(event.key.keysym.sym == SDLK_SPACE)
                     if(!bola_mov)
                         bola_mov = true;
+                if(event.key.keysym.sym == SDLK_z)
+                    game_paused = !game_paused;
 
                 if(event.key.keysym.sym == SDLK_ESCAPE)
                     playing = false;
@@ -261,11 +265,12 @@ void draw(){
     // pinta las puntuaciones
     if(score1_changed){
         font_score1 = renderText(to_string(points_j1),
-                                 "sample.ttf",
+                                 "font.ttf",
                                  {190,190,190},
                                  SCORE_SIZE,
                                  renderer);
         score1_changed = false;
+        cout << "Font rendered n";
     }
     renderTexture(font_score1,
                   renderer,
@@ -273,7 +278,7 @@ void draw(){
                   WINDOW_HEIGHT / 12);
     if(score2_changed){
         font_score2 = renderText(to_string(points_j2),
-                                 "sample.ttf",
+                                 "font.ttf",
                                  {190,190,190},
                                  SCORE_SIZE,
                                  renderer);
@@ -283,6 +288,11 @@ void draw(){
                   renderer,
                   WINDOW_WIDTH * 6 / 10 - SCORE_SIZE/2,
                   WINDOW_HEIGHT / 12);
+
+    if(game_paused){
+        // draw pause menu
+    }
+    
     SDL_RenderPresent(renderer);
 }
 
@@ -295,7 +305,8 @@ void clean(){
 void gameLoop(){
     while(playing){
         handle_input();
-        update();
+        if(!game_paused)
+            update();
         draw();
     }
     clean();
