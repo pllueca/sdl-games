@@ -104,11 +104,12 @@ void restart_positions(){
     ball1.x = WINDOW_WIDTH/2;
     ball1.y = WINDOW_HEIGHT/2;
     ball1.dim = BALL_WIDTH;
-    ball1.vy = 10 + rand() % 20;
+    ball1.vy = 0;//10 + rand() % 20;
     if(last_player)
         ball1.vx = -10 + rand() % 10;
     else
         ball1.vx = rand() % 10;
+    //***
     mov1 = 0;
     mov2 = 0;
     bola_mov = false;
@@ -118,7 +119,7 @@ void restart_positions(){
 //******************************************************
 void init(){
     SDL_Init(SDL_INIT_EVERYTHING);
-    TTF_Init();
+    //TTF_Init();
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // key repetition
 
     window = SDL_CreateWindow( // name, x, y, w, h, flags
@@ -301,7 +302,7 @@ void gameLoop(){
 
 }
 
-int main(){
+int main(int argc, char *argv[]){
     srand(time(NULL));
     init();
     gameLoop();

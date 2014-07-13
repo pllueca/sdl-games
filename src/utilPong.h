@@ -1,14 +1,14 @@
 #include "SDL.h"
-#include "SDL_ttf.h"
+//#include "SDL_ttf.h"
 #include <string>
 #include <iostream>
 using namespace std;
 
 void renderTexture(SDL_Texture * tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr){
-    SDL_RenderCopy(ren, tex, clip, &dst);
+    //  SDL_RenderCopy(ren, tex, clip, &dst);
 }
 
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr) {
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr) {/*
     SDL_Rect dst;
     dst.x = x;
     dst.y = y;
@@ -19,9 +19,10 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *
     else
         SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
     renderTexture(tex,ren,dst,clip);
+                                                                                                 */
 }
 
-SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer){
+SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer){/*
     TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
 
     SDL_Surface *surf = TTF_RenderText_Blended(font, text.c_str(), color);
@@ -31,4 +32,6 @@ SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color co
     SDL_FreeSurface(surf);
     TTF_CloseFont(font);
     return texture;
+                                                                                                                           */
+    return NULL;
 }
