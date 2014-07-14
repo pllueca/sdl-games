@@ -290,14 +290,15 @@ void draw(){
                   WINDOW_HEIGHT / 12);
 
     if(game_paused){
-        // draw pause menu
+      // draw pause menu
+      
     }
     
     SDL_RenderPresent(renderer);
 }
 
 void clean(){
-    SDL_DestroyRenderer(renderer);
+  SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();  
 }
