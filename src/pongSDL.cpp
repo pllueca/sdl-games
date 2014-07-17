@@ -1,4 +1,4 @@
-/* Classic game Pong implemented using SDL 2.0.3 */
+ /* Classic game Pong implemented using SDL 2.0.3 */
 
 #include "utilPong.h"
 #include <cmath>                      
@@ -14,7 +14,13 @@ const int PADDLE_WIDTH = 30;
 const int PADDLE_HEIGHT = 180;
 const int BALL_WIDTH = 15;
 
+const int BUTTON_WIDTH = 60;
+const int BUTTON_HEIGHT = 30;
+const int BUTTON_STEP = 10;
+
 const int SCORE_SIZE = 24;
+
+const SDL_Color font_lgrey = {190,190,190};
 
 int mov1, mov2;
 
@@ -31,6 +37,7 @@ bool score1_changed, score2_changed;
 
 bool playing = true;
 bool last_player;
+int btn_act;
 
 struct ball {
     int x;
@@ -51,10 +58,6 @@ struct paddle {
 
 paddle left_paddle, right_paddle;
 ball ball1;
-
-
-
-
 
 
 // Check colisions 
@@ -141,16 +144,13 @@ void init(){
     score2_changed = false;
 
     last_player = rand() % 2;
-
+    btn_act = -1;
     // posicion inicial de las palas
     restart_positions();
-
-
-    SDL_ShowCursor(0);
-    
+    SDL_ShowCursor(0);    
 }
 
-void handle_input(){
+void handle_input_game(){
     bool keydown = false;
     while(SDL_PollEvent(&event) != 0){
         switch(event.type){
@@ -240,6 +240,27 @@ void update(){
 }
 
 
+// cuando esta en pausa, pinta botones "reanudar" y "salir"
+void draw_buttons_pause(){
+
+    // boton reanudar
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 128);
+    SDL_Rect btn1 =  {WINDOW_WIDTH/2 - BUTTON_WIDTH/2,
+                      WINDOW_HEIGHT/2,
+                      BUTTON_WIDTH,
+                      BUTTON_HEIGHT};
+    SDL_RenderFillRect(renderer, &btn1);
+    
+    //boton salir
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128);
+    SDL_Rect btn2 = {WINDOW_WIDTH/2 - BUTTON_WIDTH/2,
+                     WINDOW_HEIGHT/2 + BUTTON_HEIGHT + BUTTON_STEP,
+                     BUTTON_WIDTH,
+                     BUTTON_HEIGHT};
+    SDL_RenderFillRect(renderer, &btn2);
+    btn_act = 1;
+}
+
 // dibuja la escena
 void draw(){
     // pinta toda la escena de blanco
@@ -263,10 +284,12 @@ void draw(){
     
 
     // pinta las puntuaciones
+    
     if(score1_changed){
+        cout <<"asdasdasd"<<endl;
         font_score1 = renderText(to_string(points_j1),
-                                 "font.ttf",
-                                 {190,190,190},
+                                 "sample.ttf",
+                                 font_lgrey,
                                  SCORE_SIZE,
                                  renderer);
         score1_changed = false;
@@ -276,6 +299,7 @@ void draw(){
                   renderer,
                   WINDOW_WIDTH * 4 / 10,
                   WINDOW_HEIGHT / 12);
+    /*
     if(score2_changed){
         font_score2 = renderText(to_string(points_j2),
                                  "font.ttf",
@@ -288,17 +312,16 @@ void draw(){
                   renderer,
                   WINDOW_WIDTH * 6 / 10 - SCORE_SIZE/2,
                   WINDOW_HEIGHT / 12);
-
+    */
     if(game_paused){
-      // draw pause menu
-      
+        draw_buttons_pause();
     }
     
     SDL_RenderPresent(renderer);
 }
 
 void clean(){
-  SDL_DestroyRenderer(renderer);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();  
 }

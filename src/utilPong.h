@@ -1,6 +1,8 @@
 #ifdef __APPLE__
 #include "SDL.h"
 #include "SDL_ttf.h"
+#else
+
 #endif
 #include <string>
 #include <iostream>
@@ -24,12 +26,12 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *
 }
 
 SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer){
-    TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
-
-    SDL_Surface *surf = TTF_RenderText_Blended(font, text.c_str(), color);
-
+    TTF_Font *font = TTF_OpenFont("font.ttf", 20);
+    //aqui no peta
+    SDL_Surface *surf = TTF_RenderText_Blended(font, "aaaa", color);
+    cerr <<"text rendered"<<endl;
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surf);
-
+    
     SDL_FreeSurface(surf);
     TTF_CloseFont(font);
     return texture;
