@@ -7,10 +7,8 @@ CFLAGS = -std=c++11
 LDFLAGS = -framework SDL2 -framework SDL2_ttf
 
 all: pong
-pong: pongSDL.cpp utilPong.h
-	$(CC) pongSDL.cpp -o $(CFLAGS) -$(CLIBS)
 
-pongmac: pongSDL.cpp utilPong.h
+pong: pongSDL.cpp 
 	$(CC) pongSDL.cpp -c $(CFLAGS) $(CLIBS_MAC)
 	$(CC) pongSDL.o -o pong $(LDFLAGS)
 

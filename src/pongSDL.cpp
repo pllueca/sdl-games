@@ -1,10 +1,18 @@
  /* Classic game Pong implemented using SDL 2.0.3 */
 
-#include "utilPong.h"
-#include <cmath>                      
+#ifdef __APPLE__
+#include "SDL.h"
+#include "SDL_ttf.h"
+#else
+// imports linux
+#endif
+#include <cmath>                     
 #include <ctime>
+#include <string>
+#include <iostream>
+using namespace std;
 
-// Window attributes
+// constants
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
@@ -20,24 +28,10 @@ const int BUTTON_STEP = 10;
 
 const int SCORE_SIZE = 24;
 
-const SDL_Color font_lgrey = {190,190,190};
+const string FONT_DIR = "../res/fonts/";
 
-int mov1, mov2;
-
-bool bola_mov;
-bool game_paused;
-
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-SDL_Event event;
-
-SDL_Texture *font_score1, *font_score2;
-int points_j1, points_j2;
-bool score1_changed, score2_changed;
-
-bool playing = true;
-bool last_player;
-int btn_act;
+const SDL_Color grey = {190,190,190};
+const SDL_Color black = {0,0,0};
 
 struct ball {
     int x;
@@ -56,12 +50,61 @@ struct paddle {
     int y;    
 };
 
+int mov1, mov2;
+
+bool bola_mov;
+bool game_paused;
+
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+SDL_Event event;
+
+SDL_Texture *font_score1, *font_score2;
+int points_j1, points_j2;
+bool score1_changed, score2_changed;
+
+bool playing;
+bool last_player;
+int btn_act;
+
 paddle left_paddle, right_paddle;
 ball ball1;
 
+void renderTexture(SDL_Texture * tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr){
+      SDL_RenderCopy(ren, tex, clip, &dst);
+}
+
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr) {
+    SDL_Rect dst;
+    dst.x = x;
+    dst.y = y;
+    if(clip != nullptr) {
+        dst.w = clip->w;
+        dst.h = clip->h;
+    }
+    else
+        SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+    renderTexture(tex,ren,dst,clip);
+}
+
+
+
+SDL_Texture* renderText(const string &text, const string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer){
+
+    string d = FONT_DIR + fontFile;
+    TTF_Font *font = TTF_OpenFont(d.c_str(), 20);
+    
+    SDL_Surface *surf = TTF_RenderText_Blended(font, text.c_str(), color);
+ 
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surf);
+    
+    SDL_FreeSurface(surf);
+    TTF_CloseFont(font);
+    return texture;
+    
+}
 
 // Check colisions 
-// not implemented
 bool checkCollisionLeft(){
     if(ball1.x + ball1.vx <= 0)
         return true;
@@ -121,6 +164,8 @@ void restart_positions(){
 }
 
 
+
+
 //******************************************************
 void init(){
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -140,14 +185,16 @@ void init(){
 
     points_j1 = 0;
     points_j2 = 0;
-    score1_changed = false;
-    score2_changed = false;
+    score1_changed = true;
+    score2_changed = true;
 
     last_player = rand() % 2;
     btn_act = -1;
     // posicion inicial de las palas
     restart_positions();
-    SDL_ShowCursor(0);    
+    playing = true;
+    SDL_ShowCursor(0);
+    
 }
 
 void handle_input_game(){
@@ -286,24 +333,22 @@ void draw(){
     // pinta las puntuaciones
     
     if(score1_changed){
-        cout <<"asdasdasd"<<endl;
         font_score1 = renderText(to_string(points_j1),
-                                 "sample.ttf",
-                                 font_lgrey,
+                                 "sansation.ttf",
+                                 black,
                                  SCORE_SIZE,
                                  renderer);
         score1_changed = false;
-        cout << "Font rendered n";
     }
     renderTexture(font_score1,
                   renderer,
                   WINDOW_WIDTH * 4 / 10,
                   WINDOW_HEIGHT / 12);
-    /*
+    
     if(score2_changed){
         font_score2 = renderText(to_string(points_j2),
-                                 "font.ttf",
-                                 {190,190,190},
+                                 "sansation.ttf",
+                                 black,
                                  SCORE_SIZE,
                                  renderer);
         score2_changed = false;
@@ -312,7 +357,7 @@ void draw(){
                   renderer,
                   WINDOW_WIDTH * 6 / 10 - SCORE_SIZE/2,
                   WINDOW_HEIGHT / 12);
-    */
+    
     if(game_paused){
         draw_buttons_pause();
     }
@@ -328,7 +373,7 @@ void clean(){
 
 void gameLoop(){
     while(playing){
-        handle_input();
+        handle_input_game();
         if(!game_paused)
             update();
         draw();
