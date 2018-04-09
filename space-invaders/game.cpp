@@ -10,10 +10,9 @@
 using namespace std;
 
 // constants
-//
-//
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
+const int NUM_INVADERS = 5;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -60,7 +59,7 @@ public:
                 break;
 
             case Direction::right:
-                if (x + speed >= WINDOW_WIDTH) {
+                if (x + speed  + width >= WINDOW_WIDTH) {
                     x = WINDOW_WIDTH;
                     direction = Direction::down;
                     last_direction = Direction::right;
@@ -115,13 +114,15 @@ void init(){
     SDL_ShowCursor(0);
 
 
-    Invader i;
-    i.x = 50;
-    i.y = 50;
-    i.width = 15;
-    i.height = 15;
-    i.direction = Direction::right;
-    invaders.push_back(i);
+    for (int i=0; i < NUM_INVADERS; i++){
+        Invader in;
+        in.x = 50 + (30*i);
+        in.y = 50;
+        in.width = 15;
+        in.height = 15;
+        in.direction = Direction::right;
+        invaders.push_back(in);
+    }
     
 }
 
