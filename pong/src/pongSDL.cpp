@@ -2,7 +2,7 @@
 
 #ifdef __APPLE__
 #include "SDL.h"
-#include "SDL_ttf.h"
+#include <SDL2/SDL_ttf.h>
 #else
 // imports linux
 #endif
