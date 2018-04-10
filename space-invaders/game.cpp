@@ -4,6 +4,7 @@
 #include <cmath>                     
 #include <ctime>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -18,10 +19,90 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Event event;
 
+#define TICK_INTERVAL    30
+
+static Uint32 next_time;
+
+// arrays for storing the state of the keyboad
+const Uint8 *current_keystate;
+Uint8 *previous_keystate;
+
+Uint32 time_left(void) { 
+    Uint32 now;
+    now = SDL_GetTicks();
+    if(next_time <= now)
+        return 0;
+    else
+        return next_time - now;
+}
+
 bool playing = false;
 bool paused = false;
 
 enum Direction {none=0, up=1, down=2, left=3, right=4};
+
+class Player {
+    public:
+        int x;
+        int y;
+        int width;
+        int height;
+        int speed = 0;
+        int inital_speed=2;
+        int max_speed=5;
+        Direction direction;
+        Direction previous_direction;
+        Player() {}
+        Player(int x, int y, int width, int height){
+            this->x = x;
+            this->y = y;
+            this->width = width;
+            this->height = height;
+            this->direction = Direction::none;
+            this->previous_direction = Direction::none;
+        }
+
+        void update() {
+            if (current_keystate[SDL_SCANCODE_A]) {
+                if (direction == Direction::left) {
+                    speed = min(speed + 1, max_speed);
+                } else {
+                    direction = Direction::left;
+                    speed = inital_speed;
+                }
+            } else if (current_keystate[SDL_SCANCODE_D]) {
+                if (direction == Direction::right){
+                    speed = min(speed + 1, max_speed);
+                }
+                else {
+                    direction = Direction::right;
+                    speed = inital_speed;
+                }
+            }
+            if(direction != Direction::none && 
+              !(current_keystate[SDL_SCANCODE_A] || current_keystate[SDL_SCANCODE_D])){
+                direction = Direction::none;
+                speed = 0;
+            }
+            switch(direction){
+                case Direction::left:
+                    x = max(0, x - speed);
+                    break;
+                case Direction::right:
+                    x = min(WINDOW_WIDTH, x + speed);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        void draw(SDL_Renderer *renderer) {
+            SDL_SetRenderDrawColor(renderer, 0,255,0,255);
+            SDL_Rect player_rect = {x, y, width, height};
+            SDL_RenderFillRect(renderer, &player_rect);
+        }
+};
+
 
 class Invader {
 public:
@@ -89,8 +170,15 @@ public:
         }
         //printf("Current pos: (%d, %d), speed: %d direction: %u\n", x, y, speed, direction);
     }
+
+    void draw(SDL_Renderer *renderer) {
+        SDL_SetRenderDrawColor(renderer, 255,0,0,255);
+        SDL_Rect invader_rect ={x, y, width, height};
+        SDL_RenderFillRect(renderer, &invader_rect);
+    }
 };
 
+Player player;
 vector<Invader> invaders;
 
 void init(){
@@ -109,11 +197,23 @@ void init(){
     // inicializa el renderer que pintara las cosas
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); 
 
+
+    // initialize events and keystate
+    //SDL_PumpEvents();
+    //const Uint8 * tmp_keystate = SDL_GetKeyboardState(NULL);
+    //current_keystate = malloc(sizeof tmp_keystate)
+
+
     playing = true;
     paused = false;
     SDL_ShowCursor(0);
 
 
+    player = Player( 
+            (WINDOW_WIDTH / 2) - 15,
+            (WINDOW_HEIGHT - 90),
+            30, 30
+    );
     for (int i=0; i < NUM_INVADERS; i++){
         Invader in;
         in.x = 50 + (30*i);
@@ -128,6 +228,12 @@ void init(){
 
 void handle_input(){
     bool keydown = false;
+    const Uint8 * tmp_keystate = SDL_GetKeyboardState(NULL);
+    memcpy(&current_keystate, &tmp_keystate, sizeof tmp_keystate);
+    if (current_keystate[SDL_SCANCODE_Q] || current_keystate[SDL_SCANCODE_ESCAPE]) {
+        playing = false;
+    }
+
     while(SDL_PollEvent(&event) != 0){
         switch(event.type){
             case SDL_QUIT:
@@ -138,6 +244,10 @@ void handle_input(){
 }
 
 void update() {
+    //handle player updates
+    player.update();
+
+    // invader updates
     for (Invader & invader : invaders) {
         invader.update();
     }
@@ -148,11 +258,10 @@ void draw() {
     SDL_SetRenderDrawColor(renderer,255,255,255,255);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 255,0,0,255);
-    for (const Invader & invader : invaders) {
-        SDL_Rect invader_rect = {invader.x, invader.y, invader.width, invader.height};
-        SDL_RenderFillRect(renderer, &invader_rect);
+    for (Invader & invader : invaders) {
+        invader.draw(renderer);
     }
+    player.draw(renderer);
 
     SDL_RenderPresent(renderer);
 }
@@ -165,10 +274,15 @@ void clean(){
 
 void game_loop(){
     init();
+    next_time = SDL_GetTicks() + TICK_INTERVAL;
     while(playing){
         handle_input();
         update();
         draw();
+
+        memcpy(&previous_keystate, &current_keystate, sizeof current_keystate);
+        SDL_Delay(time_left());
+        next_time += TICK_INTERVAL;
     }
     clean();
 }
