@@ -90,11 +90,24 @@ void update() {
 
     // invader updates
     for (Invader * invader : invaders) {
-        invader->update();
+        if (invader -> alive)
+            invader->update();
     }
 
     for (Bullet * bullet: bullets) {
-        bullet -> update();
+        if (bullet -> alive)
+            bullet -> update();
+    }
+    
+    // check intersections
+    for (Bullet * bullet: bullets) {
+        for (Invader * invader : invaders) {
+            if (invader->alive && bullet->collides(&invader) {
+                bullet -> alive = false;
+                invader -> alive = false;
+                break;
+            }
+        }
     }
 }
 
@@ -104,11 +117,13 @@ void draw() {
     SDL_RenderClear(renderer);
 
     for (Invader * invader : invaders) {
-        invader->draw(renderer);
+        if (invader -> alive)
+            invader->draw(renderer);
     }
 
     for (Bullet * bullet: bullets) {
-        bullet -> draw(renderer);
+        if (bullet -> alive)
+            bullet -> draw(renderer);
     }
     player->draw(renderer);
 

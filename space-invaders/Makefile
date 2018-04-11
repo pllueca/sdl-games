@@ -8,7 +8,7 @@ LDFLAGS = -framework SDL2 -framework SDL2_ttf
 
 all: game
 
-game: game.cpp common.h entity.h
+game: game.cpp common.h entity.h geometry.h
 	$(CC) game.cpp -c $(CFLAGS) $(CLIBS_MAC)
 	$(CC) game.o -o game $(LDFLAGS)
 
