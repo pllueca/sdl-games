@@ -23,39 +23,10 @@ SDL_Event event;
 bool playing = false;
 bool paused = false;
 
-class Bullet{
-    public:
-    int x;
-    int y;
-    int width=3;
-    int height= 5;
-    int speed = 8;
-    bool alive;
-    Direction direction;
-    Bullet() {}
-    Bullet(int x, int y){
-        this->x = x;
-        this->y = y;
-        direction = Direction::up;
-        alive=true;
-    }
-    void draw(SDL_Renderer *renderer) {
-            SDL_SetRenderDrawColor(renderer, 255,255,255,128);
-            SDL_Rect bullet_rect = {x, y, width, height};
-            SDL_RenderFillRect(renderer, &bullet_rect);
-    }
-    void update() {
-        y -= speed;
-        if (y <= 0){
-            alive = false;
-        }
-    }
-};
 
-
-Player player;
-vector<Bullet> bullets;
-vector<Invader> invaders;
+Player *player;
+vector<Bullet*> bullets;
+vector<Invader*> invaders;
 
 void init(){
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -82,19 +53,9 @@ void init(){
     SDL_ShowCursor(0);
 
 
-    player = Player( 
-            (WINDOW_WIDTH / 2) - 15,
-            (WINDOW_HEIGHT - 90),
-            30, 30
-    );
+    player = new Player( (WINDOW_WIDTH / 2) - 15, (WINDOW_HEIGHT - 90), 30, 30);
     for (int i=0; i < NUM_INVADERS; i++){
-        Invader in;
-        in.x = 50 + (30*i);
-        in.y = 50;
-        in.width = 15;
-        in.height = 15;
-        in.direction = Direction::right;
-        invaders.push_back(in);
+        invaders.push_back(new Invader(50 + (30*i),50, Direction::right));
     }
     
 }
@@ -119,11 +80,21 @@ void handle_input(){
 
 void update() {
     //handle player updates
-    player.update();
+    player->update();
+    
+    // create new bullet
+    if (player->shot){
+        bullets.push_back(new Bullet( player->x + (player->width/2) , player->y - 3));
+        player -> shot = false;
+    }
 
     // invader updates
-    for (Invader & invader : invaders) {
-        invader.update();
+    for (Invader * invader : invaders) {
+        invader->update();
+    }
+
+    for (Bullet * bullet: bullets) {
+        bullet -> update();
     }
 }
 
@@ -132,10 +103,14 @@ void draw() {
     SDL_SetRenderDrawColor(renderer,255,255,255,255);
     SDL_RenderClear(renderer);
 
-    for (Invader & invader : invaders) {
-        invader.draw(renderer);
+    for (Invader * invader : invaders) {
+        invader->draw(renderer);
     }
-    player.draw(renderer);
+
+    for (Bullet * bullet: bullets) {
+        bullet -> draw(renderer);
+    }
+    player->draw(renderer);
 
     SDL_RenderPresent(renderer);
 }
