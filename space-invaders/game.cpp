@@ -89,20 +89,36 @@ void update() {
     }
 
     // invader updates
-    for (Invader * invader : invaders) {
-        if (invader -> alive)
+    //for (Invader * invader : invaders) {
+    for(int i=0; i < invaders.size; ++i){
+        Invader *invader = invader[i];
+        if (invader -> alive){
             invader->update();
+        } else {
+            // swap to last invader and pop vector
+            Invader * tmp = invaders[invaders.size - 1];
+            invaders[invaders.size - 1] = invader;
+            invaders[i] = tmp;
+            invaders.pop_back();
+        }
     }
 
-    for (Bullet * bullet: bullets) {
-        if (bullet -> alive)
+    for (int i = 0; i < bullets.size; ++i){
+        Bullet * bullet = bullets[i];
+        if (bullet -> alive){
             bullet -> update();
+        } else {
+            Bullet * tmp = bullets[bullets.size - 1];
+            bullets[bullets.size - 1] = bullet;
+            bullets[i] = tmp;
+            bullets.pop_back();
+        }
     }
     
     // check intersections
     for (Bullet * bullet: bullets) {
         for (Invader * invader : invaders) {
-            if (invader->alive && bullet->collides(&invader) {
+            if (invader->alive && bullet->collides(invader)) {
                 bullet -> alive = false;
                 invader -> alive = false;
                 break;

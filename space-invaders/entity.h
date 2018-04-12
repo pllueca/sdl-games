@@ -33,16 +33,16 @@ class Entity {
 
     virtual void update() = 0;
 
-    bool collides(Entity &other) const{
+    bool collides(Entity * other) const{
       SDL_Rect this_rect, other_rect;
       this_rect.x = this->x;
       this_rect.y = this->y;
       this_rect.w = this->width;
       this_rect.h = this->height;
-      other_rect.x = other.x;
-      other_rect.y = other.y;
-      other_rect.w = other.width;
-      other_rect.h = other.height;
+      other_rect.x = other->x;
+      other_rect.y = other->y;
+      other_rect.w = other->width;
+      other_rect.h = other->height;
       return SDL_HasIntersection(&this_rect, &other_rect);
     }
 
