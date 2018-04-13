@@ -54,6 +54,10 @@ class Player : public Entity {
     int max_speed = 5;
     int inital_speed = 2;
     bool shot;
+    bool recently_shot = false;
+
+    int time_last_shot = 0;
+    int time_between_shots = 15;
 
     Player() {}
     Player(int x, int y, int width, int height){
@@ -70,8 +74,15 @@ class Player : public Entity {
     }
     void update() {
       // fire
-      if (current_keystate[SDL_SCANCODE_SPACE]){
+      if (recently_shot)
+        ++time_last_shot;
+      if (time_last_shot >= time_between_shots)
+        recently_shot = false;
+
+      if (not recently_shot && current_keystate[SDL_SCANCODE_SPACE]){
         shot = true;
+        recently_shot = true;
+        time_last_shot = 0;
       }
       // Movements
       // while the key is press accelerate until max_speed
