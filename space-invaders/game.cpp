@@ -28,11 +28,14 @@ Player *player;
 vector<Bullet*> bullets;
 vector<Invader*> invaders;
 
+long long int frame_num;
+
 void init(){
+    log_info("Initialitising stuff");
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // key repetition
-
+    log_info("creating window");
     window = SDL_CreateWindow( // name, x, y, w, h, flags
         "Space invaders",
         SDL_WINDOWPOS_CENTERED, 
@@ -40,6 +43,8 @@ void init(){
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
         SDL_WINDOW_SHOWN);
+
+    frame_num = 0;
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); 
 
@@ -53,10 +58,13 @@ void init(){
     SDL_ShowCursor(0);
 
 
+    log_info("Creating player and invaders");
     player = new Player( (WINDOW_WIDTH / 2) - 15, (WINDOW_HEIGHT - 90), 30, 30);
     for (int i=0; i < NUM_INVADERS; i++){
         invaders.push_back(new Invader(50 + (30*i),50, Direction::right));
     }
+    log_info("Created %d invaders", invaders.size());
+
     
 }
 
@@ -79,37 +87,45 @@ void handle_input(){
 }
 
 void update() {
+    ++frame_num;
+    if ((frame_num % 120) == 0) {
+        log_info("%d alive invaders", invaders.size());
+        log_info("%d alive bullets", bullets.size());
+    }
+
     //handle player updates
+
     player->update();
     
     // create new bullet
     if (player->shot){
+        log_info("Player shooting: %d, bullets: %d", player->shot, bullets.size());
         bullets.push_back(new Bullet( player->x + (player->width/2) , player->y - 3));
         player -> shot = false;
     }
 
     // invader updates
     //for (Invader * invader : invaders) {
-    for(int i=0; i < invaders.size; ++i){
-        Invader *invader = invader[i];
+    for(int i=0; i < invaders.size(); ++i){
+        Invader *invader = invaders[i];
         if (invader -> alive){
             invader->update();
         } else {
             // swap to last invader and pop vector
-            Invader * tmp = invaders[invaders.size - 1];
-            invaders[invaders.size - 1] = invader;
+            Invader * tmp = invaders[invaders.size() - 1];
+            invaders[invaders.size() - 1] = invader;
             invaders[i] = tmp;
             invaders.pop_back();
         }
     }
 
-    for (int i = 0; i < bullets.size; ++i){
+    for (int i = 0; i < bullets.size(); ++i){
         Bullet * bullet = bullets[i];
         if (bullet -> alive){
             bullet -> update();
         } else {
-            Bullet * tmp = bullets[bullets.size - 1];
-            bullets[bullets.size - 1] = bullet;
+            Bullet * tmp = bullets[bullets.size() - 1];
+            bullets[bullets.size() - 1] = bullet;
             bullets[i] = tmp;
             bullets.pop_back();
         }
@@ -125,7 +141,8 @@ void update() {
             }
         }
     }
-}
+
+   }
 
 void draw() {
     // draw background

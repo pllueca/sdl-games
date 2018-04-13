@@ -70,7 +70,7 @@ class Player : public Entity {
     }
     void update() {
       // fire
-      if (current_keystate[SDL_SCANCODE_W]){
+      if (current_keystate[SDL_SCANCODE_SPACE]){
         shot = true;
       }
       // Movements
