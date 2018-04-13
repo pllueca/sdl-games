@@ -57,7 +57,7 @@ class Player : public Entity {
     bool recently_shot = false;
 
     int time_last_shot = 0;
-    int time_between_shots = 15;
+    int time_between_shots = 5;
 
     Player() {}
     Player(int x, int y, int width, int height){
@@ -190,9 +190,9 @@ class Bullet: public Entity{
     Bullet(int x, int y){
         this->x = x;
         this->y = y;
-        width = 1;
-        height = 3;
-        speed=5;
+        width = 3;
+        height = 5;
+        speed=10;
         direction = Direction::up;
         int tmp_color[4] = {0, 0,0, 255};
         memcpy(&color, &tmp_color, sizeof tmp_color);

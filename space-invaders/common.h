@@ -24,6 +24,7 @@ enum Direction {none=0, up=1, down=2, left=3, right=4};
 const Uint8 *current_keystate;
 Uint8 *previous_keystate;
 
+const SDL_Color black = {0,0,0};
 
 // logging
 #define log_info(...) SDL_LogMessage(   SDL_LOG_CATEGORY_APPLICATION, \

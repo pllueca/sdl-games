@@ -12,6 +12,7 @@ using namespace std;
 
 #include "common.h"
 #include "entity.h"
+#include "render.h"
 
 
 
@@ -22,6 +23,7 @@ SDL_Event event;
 
 bool playing = false;
 bool paused = false;
+bool win=false;
 
 
 Player *player;
@@ -163,6 +165,23 @@ void draw() {
     SDL_RenderPresent(renderer);
 }
 
+void draw_win() {
+    SDL_SetRenderDrawColor(renderer,0,0,0,255);
+    SDL_RenderClear(renderer);
+
+    SDL_Texture * font_text = renderText("You Win!",
+                             "sketchy.ttf",
+                             {255, 0, 0},
+                             40,
+                             renderer);
+    renderTexture(font_text,
+              renderer,
+              WINDOW_WIDTH / 2,
+              WINDOW_HEIGHT / 2);
+    
+    SDL_RenderPresent(renderer);
+}
+
 void clean(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -175,7 +194,13 @@ void game_loop(){
     while(playing){
         handle_input();
         update();
-        draw();
+
+        if (invaders.size() == 0)
+            win=true;
+        if(win)
+            draw_win();
+        else
+            draw();
 
         memcpy(&previous_keystate, &current_keystate, sizeof current_keystate);
         SDL_Delay(time_left());
