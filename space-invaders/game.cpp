@@ -45,6 +45,8 @@ void init(){
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
         SDL_WINDOW_SHOWN);
+    log_info("window size: (%d, %d)", WINDOW_WIDTH, WINDOW_HEIGHT);
+
 
     frame_num = 0;
 

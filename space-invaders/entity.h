@@ -147,7 +147,7 @@ class Player : public Entity {
 
 class Invader: public Entity {
   public:
-    
+
     int max_steps_down = 8;
     int current_steps_down;
     bool dying;
@@ -186,10 +186,9 @@ class Invader: public Entity {
             direction = Direction::down;
             previous_direction = Direction::right;
             current_steps_down = 0;
-          } else {
-            //x += speed;
-            x = min(WINDOW_WIDTH - width, x + speed );
-          }
+          } 
+          x = min(WINDOW_WIDTH - width, x + speed );
+          
           break;
 
         case Direction::up:
