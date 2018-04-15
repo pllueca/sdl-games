@@ -148,7 +148,6 @@ void update() {
             }
         }
     }
-
    }
 
 void draw() {
@@ -164,6 +163,7 @@ void draw() {
     for (Bullet * bullet: bullets) {
         if (bullet -> alive)
             bullet -> draw(renderer);
+    
     }
     player->draw(renderer);
 
