@@ -61,9 +61,9 @@ void init(){
 
 
     log_info("Creating player and invaders");
-    player = new Player( (WINDOW_WIDTH / 2) - 15, (WINDOW_HEIGHT - 90), 30, 30);
+    player = new Player( (WINDOW_WIDTH / 2) - 15, (WINDOW_HEIGHT - 90));
     for (int i=0; i < NUM_INVADERS; i++){
-        invaders.push_back(new Invader(50 + (30*i),50, Direction::right));
+        invaders.push_back(new Invader(50 + (50*i),50, Direction::right));
     }
     log_info("Created %d invaders", invaders.size());
 
@@ -110,9 +110,11 @@ void update() {
     //for (Invader * invader : invaders) {
     for(int i=0; i < invaders.size(); ++i){
         Invader *invader = invaders[i];
-        if (invader -> alive){
+        if (invader -> alive && !invader->dying){
             invader->update();
-        } else {
+        } else if (invader -> alive && invader->dying){
+           invader->dying_update();
+        } else { //completely dead, release memory
             // swap to last invader and pop vector
             Invader * tmp = invaders[invaders.size() - 1];
             invaders[invaders.size() - 1] = invader;
@@ -138,7 +140,8 @@ void update() {
         for (Invader * invader : invaders) {
             if (invader->alive && bullet->collides(invader)) {
                 bullet -> alive = false;
-                invader -> alive = false;
+                //invader -> alive = false;
+                invader->die();
                 break;
             }
         }
@@ -148,7 +151,7 @@ void update() {
 
 void draw() {
     // draw background
-    SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    SDL_SetRenderDrawColor(renderer,100,100,100,255);
     SDL_RenderClear(renderer);
 
     for (Invader * invader : invaders) {

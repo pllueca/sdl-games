@@ -15,20 +15,38 @@ class Entity {
     int speed;
     int color[4];
     bool alive;
+    bool dying;
     Direction direction;
     Direction previous_direction;
     
+    SDL_Surface * sprite;
+
     Entity() {}
-    ~Entity() {}
+    ~Entity() {
+      if(sprite != nullptr){
+        SDL_FreeSurface(sprite);
+      }
+    }
+
+
     void draw(SDL_Renderer *renderer) {
-      SDL_SetRenderDrawColor(renderer, 
-          color[0],
-          color[1],
-          color[2],
-          color[3]
-          );
+      //log_info("drawing player sprite");
+      SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, this->sprite);
       SDL_Rect rect = {x, y, width, height};
-      SDL_RenderFillRect(renderer, &rect);
+      SDL_RenderCopy(renderer, texture, NULL, &rect);
+    }
+
+    void load_sprite(char * sprite_path) {
+     sprite = SDL_LoadBMP(sprite_path);
+     if (sprite == nullptr){
+       log_info("error loading sprite from %s", sprite_path);
+       exit(1);
+     } else {
+       log_info("loaded player sprite");
+     }
+     Uint32 black_value = SDL_MapRGB(sprite->format, 0,0,0);
+     SDL_SetColorKey(sprite, SDL_TRUE, black_value);
+
     }
 
     virtual void update() = 0;
@@ -58,20 +76,24 @@ class Player : public Entity {
 
     int time_last_shot = 0;
     int time_between_shots = 5;
-
     Player() {}
-    Player(int x, int y, int width, int height){
+    Player(int x, int y){
       this->x = x;
       this->y = y;
-      this->width = width;
-      this->height = height;
+      this->width = 32;
+      this->height = 14;
       shot = false;
       direction = Direction::none;
       previous_direction = Direction::none;
       alive=true;
       int tmp_color[4] = {255, 0, 0, 255};
       memcpy(&color, &tmp_color, sizeof tmp_color);
-    }
+      load_sprite("res/invader1.bmp");
+
+
+  }
+
+  
     void update() {
       // fire
       if (recently_shot)
@@ -125,19 +147,25 @@ class Player : public Entity {
 
 class Invader: public Entity {
   public:
+    
     int max_steps_down = 8;
     int current_steps_down;
+    bool dying;
+    int die_frames = 5;
+    int current_dying;
     Invader() {}
     Invader(int x, int y, Direction direction) {
       this -> x = x;
       this -> y = y;
       this -> direction = direction;
-      width = 15;
+      width = 32;
       height = 15;
       speed=7;
       alive = true;
+      dying = false;
       int tmp_color[4] = {0, 0, 255, 255};
       memcpy(&color, &tmp_color, sizeof tmp_color);
+      load_sprite("res/invader2.bmp");
     }
 
     void update() {
@@ -159,7 +187,8 @@ class Invader: public Entity {
             previous_direction = Direction::right;
             current_steps_down = 0;
           } else {
-            x += speed;
+            //x += speed;
+            x = min(WINDOW_WIDTH - width, x + speed );
           }
           break;
 
@@ -182,6 +211,20 @@ class Invader: public Entity {
 
       }
     }
+
+    void dying_update(){
+      ++current_dying;
+      if(current_dying >= die_frames){
+        alive = false;
+      }
+    }
+    void die() {
+      if(!dying){
+        dying = true;
+        current_dying = 0;
+        load_sprite("res/explosion.bmp");
+      }
+    }
 };
 
 class Bullet: public Entity{
@@ -194,7 +237,7 @@ class Bullet: public Entity{
         height = 5;
         speed=10;
         direction = Direction::up;
-        int tmp_color[4] = {0, 0,0, 255};
+        int tmp_color[4] = {255, 255,0, 255};
         memcpy(&color, &tmp_color, sizeof tmp_color);
     }
     void update() {
@@ -203,5 +246,14 @@ class Bullet: public Entity{
             alive = false;
         }
     }
-};
+    void draw(SDL_Renderer *renderer) {
+      SDL_SetRenderDrawColor(renderer, 
+          color[0],
+          color[1],
+          color[2],
+          color[3]
+          );
+      SDL_Rect rect = {x, y, width, height};
+      SDL_RenderFillRect(renderer, &rect);
+    }};
 
